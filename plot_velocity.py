@@ -9,10 +9,14 @@ args = parser.parse_args()
 data_path = 'data/{}_velocity.h5ad'.format(args.subset)
 
 adata = sc.read(data_path)
-scv.pl.velocity_embedding_stream(adata, basis='umap', legend_fontsize=12, title='', smooth=.8, min_mass=4, color='type', save='stream_type.png')
+scv.pl.velocity_embedding_stream(adata, basis='umap', legend_fontsize=12, title='', smooth=.8, min_mass=4, color='type', 
+	save='{}_stream_type.png'.format(args.subset))
 
-scv.pl.velocity_embedding_stream(adata, basis='umap', legend_fontsize=12, title='', smooth=.8, min_mass=4, color='day', save='stream_day.png')
+scv.pl.velocity_embedding_stream(adata, basis='umap', legend_fontsize=12, title='', smooth=.8, min_mass=4, color='day', 
+	save='{}_stream_day.png'.format(args.subset))
 
-scv.pl.velocity_embedding(adata, basis='umap', arrow_length=2, arrow_size=2, dpi=200, color='type', save='arrow_type.png')
+scv.pl.velocity_embedding(adata, basis='umap', arrow_length=2, arrow_size=2, dpi=200, color='type', 
+	save='{}_arrow_type.png'.format(args.subset))
 
-scv.pl.velocity_embedding(adata, basis='umap', arrow_length=2, arrow_size=2, dpi=200, color='day', save='arrow_day.png')
+scv.pl.velocity_embedding(adata, basis='umap', arrow_length=2, arrow_size=2, dpi=200, color='day', 
+	save='{}_arrow_day.png'.format(args.subset))
