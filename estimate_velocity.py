@@ -25,7 +25,7 @@ sc.pp.neighbors(adata, n_pcs=30, n_neighbors=30)
 scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
 
 c = scachepy.Cache(cache_dir)
-c.tl.recover_dynamics(adata, force=False)
+c.tl.recover_dynamics(adata, force=False, n_jobs=16)
 
 scv.tl.velocity(adata, mode='dynamical')
 scv.tl.velocity_graph(adata)
