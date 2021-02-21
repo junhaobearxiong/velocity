@@ -17,10 +17,10 @@ input_exp_path = 'data/seurat.annotated.sct.h5ad'
 input_velo_path = 'data/{}.loom'.format(args.subset)
 output_path = 'data/{}_joint.h5ad'.format(args.subset)
 
-adata = scv.read(input_velo_path)
+adata = scv.read(input_velo_path, cache=True)
 scv.utils.show_proportions(adata)
 print('velocyto data shape: {}'.format(adata.shape))
-adata_exp = sc.read(input_exp_path)
+adata_exp = sc.read(input_exp_path, cache=True)
 print('expression data shape: {}'.format(adata_exp.shape))
 
 def process_velocyto_cellname(x):
