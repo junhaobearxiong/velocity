@@ -18,7 +18,7 @@ cache_dir = 'cached_files/{}'.format(args.subset)
 scv.settings.verbosity = 3
 scv.settings.set_figure_params('scvelo')
 
-adata = scv.read(data_path)
+adata = scv.read(input_path)
 scv.pp.filter_and_normalize(adata, min_shared_counts=20, n_top_genes=2000)
 sc.tl.pca(adata)
 sc.pp.neighbors(adata, n_pcs=30, n_neighbors=30)
@@ -31,7 +31,7 @@ scv.tl.velocity(adata, mode='dynamical')
 scv.tl.velocity_graph(adata)
 sc.tl.umap(adata)
 
-adata.write(data_path)
+adata.write(output_path)
 
 
 
