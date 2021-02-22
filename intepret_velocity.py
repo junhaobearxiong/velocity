@@ -12,15 +12,15 @@ data_path = 'data/{}_velocity.h5ad'.format(args.subset)
 adata = sc.read(data_path)
 
 if args.plot == 'latent_time':
-    # estimate pseudotime
+    # estimate gene-shared latent time
     scv.tl.latent_time(adata)
-    # plot embedding color by pseudotime
+    # plot embedding color by latent time
     scv.pl.scatter(adata, color='latent_time', cmap='gnuplot', dpi=200,
         save='{}_latent_time.png'.format(args.subset))
     # plot top genes expression ordered by pseudotime
     top_genes = adata.var['fit_likelihood'].sort_values(ascending=False).index[:300]
     scv.pl.heatmap(adata, var_names=top_genes, sortby='latent_time', col_color='type', n_convolve=100, 
-        save='{}_top_genes_by_time.png'.format(args.subset))
+        save='{}_top_genes_by_latent_time.png'.format(args.subset))
 
 elif args.plot == 'top_genes':
     # plot top genes phase portrait
@@ -29,12 +29,30 @@ elif args.plot == 'top_genes':
         save='{}_top_genes_phase_portrait.png'.format(args.subset))
 
 elif args.plot == 'velocity_graph':
-    scv.pl.velocity_graph(adata, color='type', dpi=200, threshold=.1, save='{}_{}.png'.format(args.subset,))
+    scv.pl.velocity_graph(adata, color='type', threshold=.1, dpi=200,
+        save='{}_{}.png'.format(args.subset, args.plot))
+    # plot embedding colored by velocity pseudotime, which is based on velocity graph
+    scv.tl.velocity_pseudotime(adata)
+    scv.pl.scatter(adata, color='velocity_pseudotime', color_map='gnuplot', dpi=200, 
+        save='{}_velocity_pseudotime.png'.format(args.subset))
+
+    # this is needed due to a current bug - bugfix is coming soon.
+    adata.uns['neighbors']['distances'] = adata.obsp['distances']
+    adata.uns['neighbors']['connectivities'] = adata.obsp['connectivities']
+
+    # plot paga graph extended by velocity-inferred directionality
+    scv.tl.paga(adata, groups='type')
+    df = scv.get_df(adata, 'paga/transitions_confidence', precision=2).T
+    df.style.background_gradient(cmap='Blues').format('{:.2g}')
+
+    scv.pl.paga(adata, basis='umap', size=50, alpha=.1, min_edge_width=2, node_size_scale=1.5, dpi=150,
+        save='{}_paga.png'.format(args.subset))
 
 elif args.plot == 'speed_coherence':
     scv.tl.velocity_confidence(adata)
     keys = 'velocity_length', 'velocity_confidence'
-    scv.pl.scatter(adata, c=keys, cmap='coolwarm', dpi=200, perc=[5, 95], save='{}_{}.png'.format(args.subset, args.plot))
+    scv.pl.scatter(adata, c=keys, cmap='coolwarm', perc=[5, 95], dpi=200,
+        save='{}_{}.png'.format(args.subset, args.plot))
     df = adata.obs.groupby('type')[keys].mean().T
     df.style.background_gradient(cmap='coolwarm', axis=1)
 
