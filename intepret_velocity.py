@@ -23,8 +23,9 @@ if args.plot == 'latent_time':
         save='{}_top_genes_by_latent_time.png'.format(args.subset))
 
 elif args.plot == 'latent_time_with_root':
-    # estimate gene-shared latent time with day as prior
-    scv.tl.latent_time(adata, root_key='day')
+    adata.obs['is_day0'] = (adata.obs['day'] == 0).astype(int)
+    # estimate gene-shared latent time with root cells given by day 0 cells
+    scv.tl.latent_time(adata, root_key='is_day0')
     # plot embedding color by latent time
     scv.pl.scatter(adata, color='latent_time', cmap='gnuplot', dpi=200,
         save='{}_latent_time_with root.png'.format(args.subset))
@@ -42,15 +43,15 @@ elif args.plot == 'top_genes':
 elif args.plot == 'velocity_graph':
     scv.tl.velocity_graph(adata, tkey='day')
     scv.pl.velocity_graph(adata, color='type', threshold=.1, dpi=200, n_neighbors=5,
-        save='{}_{}.png'.format(args.subset, args.plot))
+        save='{}_{}_type.png'.format(args.subset, args.plot))
+    scv.pl.velocity_graph(adata, color='day', threshold=.1, dpi=200, n_neighbors=5,
+        save='{}_{}_day.png'.format(args.subset, args.plot))
 
-elif args.plot == 'velocity_pseudotime':
     # plot embedding colored by velocity pseudotime, which is based on velocity graph
     scv.tl.velocity_pseudotime(adata)
     scv.pl.scatter(adata, color='velocity_pseudotime', color_map='gnuplot', dpi=200, 
         save='{}_velocity_pseudotime.png'.format(args.subset))
 
-elif args.plot == 'paga':
     # this is needed due to a current bug - bugfix is coming soon.
     adata.uns['neighbors']['distances'] = adata.obsp['distances']
     adata.uns['neighbors']['connectivities'] = adata.obsp['connectivities']
