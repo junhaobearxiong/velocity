@@ -40,7 +40,8 @@ elif args.plot == 'top_genes':
         save='{}_top_genes_phase_portrait.png'.format(args.subset))
 
 elif args.plot == 'velocity_graph':
-    scv.pl.velocity_graph(adata, color='type', threshold=.1, dpi=200,
+    scv.tl.velocity_graph(adata, tkey='day')
+    scv.pl.velocity_graph(adata, color='type', threshold=.1, dpi=200, n_neighbors=5,
         save='{}_{}.png'.format(args.subset, args.plot))
 
 elif args.plot == 'velocity_pseudotime':
@@ -48,7 +49,6 @@ elif args.plot == 'velocity_pseudotime':
     scv.tl.velocity_pseudotime(adata)
     scv.pl.scatter(adata, color='velocity_pseudotime', color_map='gnuplot', dpi=200, 
         save='{}_velocity_pseudotime.png'.format(args.subset))
-
 
 elif args.plot == 'paga':
     # this is needed due to a current bug - bugfix is coming soon.
