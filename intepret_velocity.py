@@ -1,10 +1,14 @@
 import scanpy as sc
 import scvelo as scv
 import argparse
+import numpy as np
+
+# np.random.seed(1)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('subset', help='the subset of cells where we are performing the analysis, i.e. E1, E1col1, or full')
 parser.add_argument('plot', help='which type of plot to produce')
+parser.add_argument('given_root', type=int, help='whether root cells are given (relevant for latent time or velocity graph')
 args = parser.parse_args()
 
 data_path = 'data/{}_velocity.h5ad'.format(args.subset)
@@ -12,27 +16,63 @@ data_path = 'data/{}_velocity.h5ad'.format(args.subset)
 adata = sc.read(data_path)
 
 if args.plot == 'latent_time':
-    # estimate gene-shared latent time
-    scv.tl.latent_time(adata)
+    top_genes = adata.var['fit_likelihood'].sort_values(ascending=False).index[:300]
+    if not args.given_root:
+        # estimate gene-shared latent time
+        scv.tl.latent_time(adata)
+        latent_time_save_path = '{}_latent_time.png'.format(args.subset)
+        top_genes_save_path = '{}_top_genes_by_latent_time.png'.format(args.subset)
+    else:
+        # root cells given by day 0 cells
+        adata.obs['is_day0'] = (adata.obs['day'] == 0).astype(int)
+        scv.tl.latent_time(adata, root_key='is_day0')
+        latent_time_save_path = '{}_latent_time_with_root.png'.format(args.subset)
+        top_genes_save_path = '{}_top_genes_by_latent_time_with_root.png'.format(args.subset)
+    
     # plot embedding color by latent time
     scv.pl.scatter(adata, color='latent_time', cmap='gnuplot', dpi=200,
-        save='{}_latent_time.png'.format(args.subset))
+        save=latent_time_save_path)
     # plot top genes expression ordered by pseudotime
-    top_genes = adata.var['fit_likelihood'].sort_values(ascending=False).index[:300]
     scv.pl.heatmap(adata, var_names=top_genes, sortby='latent_time', col_color='type', n_convolve=100, 
-        save='{}_top_genes_by_latent_time.png'.format(args.subset))
+        save=top_genes_save_path)
 
-elif args.plot == 'latent_time_with_root':
-    adata.obs['is_day0'] = (adata.obs['day'] == 0).astype(int)
-    # estimate gene-shared latent time with root cells given by day 0 cells
-    scv.tl.latent_time(adata, root_key='is_day0')
-    # plot embedding color by latent time
-    scv.pl.scatter(adata, color='latent_time', cmap='gnuplot', dpi=200,
-        save='{}_latent_time_with root.png'.format(args.subset))
-    # plot top genes expression ordered by pseudotime
-    top_genes = adata.var['fit_likelihood'].sort_values(ascending=False).index[:300]
-    scv.pl.heatmap(adata, var_names=top_genes, sortby='latent_time', col_color='type', n_convolve=100, 
-        save='{}_top_genes_by_latent_time_with_root.png'.format(args.subset))
+
+elif args.plot == 'velocity_graph':
+    scv.pl.velocity_graph(adata, color='type', threshold=.1, dpi=200, n_neighbors=5,
+        save='{}_{}_type.png'.format(args.subset, args.plot))
+    scv.pl.velocity_graph(adata, color='day', threshold=.1, dpi=200, n_neighbors=5,
+        save='{}_{}_day.png'.format(args.subset, args.plot))
+
+
+elif args.plot == 'velocity_pseudotime':
+    if not args.given_root:
+        scv.tl.velocity_pseudotime(adata)
+        velocity_pseudotime_save_path = '{}_velocity_pseudotime.png'.format(args.subset)
+        paga_save_path = '{}_paga.png'.format(args.subset)
+    else:
+        # randomly select 1 day 0 ipsc as root cell
+        root_indices = np.arange(adata.shape[0])[(adata.obs['day'] == 0) & (adata.obs['type'] == 'IPSC')]
+        root_idx = np.random.choice(root_indices)
+        scv.tl.velocity_pseudotime(adata, root_key=root_idx)
+        velocity_pseudotime_save_path = '{}_velocity_pseudotime_with_root.png'.format(args.subset)
+        paga_save_path = '{}_paga_with_root.png'.format(args.subset)
+    
+    scv.pl.scatter(adata, color='velocity_pseudotime', color_map='gnuplot', dpi=200, 
+        save=velocity_pseudotime_save_path)
+
+    # this is needed due to a current bug - bugfix is coming soon.
+    adata.uns['neighbors']['distances'] = adata.obsp['distances']
+    adata.uns['neighbors']['connectivities'] = adata.obsp['connectivities']
+
+    # plot paga graph extended by velocity-inferred directionality
+    # using `velocity_pseudotime` as prior
+    scv.tl.paga(adata, groups='type')
+    df = scv.get_df(adata, 'paga/transitions_confidence', precision=2).T
+    df.style.background_gradient(cmap='Blues').format('{:.2g}')
+
+    scv.pl.paga(adata, basis='umap', size=50, alpha=.1, min_edge_width=2, node_size_scale=1.5, dpi=150,
+        save=paga_save_path)
+
 
 elif args.plot == 'top_genes':
     # plot top genes phase portrait
@@ -40,29 +80,6 @@ elif args.plot == 'top_genes':
     scv.pl.scatter(adata, basis=top_genes[:15], ncols=5, frameon=False, dpi=150, color='type',
         save='{}_top_genes_phase_portrait.png'.format(args.subset))
 
-elif args.plot == 'velocity_graph':
-    scv.tl.velocity_graph(adata, tkey='day')
-    scv.pl.velocity_graph(adata, color='type', threshold=.1, dpi=200, n_neighbors=5,
-        save='{}_{}_type.png'.format(args.subset, args.plot))
-    scv.pl.velocity_graph(adata, color='day', threshold=.1, dpi=200, n_neighbors=5,
-        save='{}_{}_day.png'.format(args.subset, args.plot))
-
-    # plot embedding colored by velocity pseudotime, which is based on velocity graph
-    scv.tl.velocity_pseudotime(adata)
-    scv.pl.scatter(adata, color='velocity_pseudotime', color_map='gnuplot', dpi=200, 
-        save='{}_velocity_pseudotime.png'.format(args.subset))
-
-    # this is needed due to a current bug - bugfix is coming soon.
-    adata.uns['neighbors']['distances'] = adata.obsp['distances']
-    adata.uns['neighbors']['connectivities'] = adata.obsp['connectivities']
-
-    # plot paga graph extended by velocity-inferred directionality
-    scv.tl.paga(adata, groups='type')
-    df = scv.get_df(adata, 'paga/transitions_confidence', precision=2).T
-    df.style.background_gradient(cmap='Blues').format('{:.2g}')
-
-    scv.pl.paga(adata, basis='umap', size=50, alpha=.1, min_edge_width=2, node_size_scale=1.5, dpi=150,
-        save='{}_paga.png'.format(args.subset))
 
 elif args.plot == 'speed_coherence':
     scv.tl.velocity_confidence(adata)
@@ -71,6 +88,7 @@ elif args.plot == 'speed_coherence':
         save='{}_{}.png'.format(args.subset, args.plot))
     df = adata.obs.groupby('type')[keys].mean().T
     df.style.background_gradient(cmap='coolwarm', axis=1)
+
 
 else:
     raise ValueError('plot {} is not implemented'.format(args.plot))
