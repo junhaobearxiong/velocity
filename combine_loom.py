@@ -1,7 +1,7 @@
 import loompy
 
 input_dirname = 'velocyto_output/'
-output_path = 'data/E3.loom'
+output_path = 'data/full.loom'
 
 '''
 files = [
@@ -49,6 +49,7 @@ files = [
 ]
 '''
 
+'''
 files = [
     'finalmerged_E3CD1col1_Aligned_E25XO.loom',
     'finalmerged_E3CD1col2_Aligned_6B6E2.loom',
@@ -68,6 +69,13 @@ files = [
     'finalmerged_E3CD3col4_Aligned_H96EV.loom',
     'finalmerged_E3CD3col5_Aligned_67AIU.loom',
     'finalmerged_E3CD3col6_Aligned_0A243.loom',
+]
+'''
+
+files = [
+    'E1.loom',
+    'E2.loom',
+    'E3.loom',
 ]
 
 files = [input_dirname + f for f in files]
