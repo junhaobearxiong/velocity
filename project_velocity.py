@@ -7,12 +7,12 @@ parser.add_argument('subset', help='the subset of cells where we are performing 
 parser.add_argument('tkey', type=int, default=0, help='whether to use days as `tkey` when computing velocity graph')
 args = parser.parse_args()
 
-data_path = 'data/{}_velocity.h5ad'.format(args.subset)
+if not args.tkey:
+    data_path = 'data/{}_velocity.h5ad'.format(args.subset)
+else:
+    data_path = 'data/{}_velocity_tkey.h5ad'.format(args.subset)
 
 adata = sc.read(data_path)
-
-if args.tkey:
-    scv.tl.velocity_graph(adata, tkey='day')
 
 scv.pl.velocity_embedding_stream(adata, basis='umap', legend_fontsize=12, dpi=200, title='{} by type'.format(args.subset), color='type', 
     save='{}_stream_type_tkey{}.png'.format(args.subset, args.tkey))

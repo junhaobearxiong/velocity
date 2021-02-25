@@ -19,6 +19,8 @@ scv.settings.verbosity = 3
 scv.settings.set_figure_params('scvelo')
 
 adata = scv.read(input_path, cache=True)
+scv.utils.show_proportions(adata)
+
 scv.pp.filter_and_normalize(adata, min_shared_counts=20, n_top_genes=2000)
 sc.tl.pca(adata)
 sc.pp.neighbors(adata, n_pcs=30, n_neighbors=30)

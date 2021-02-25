@@ -40,9 +40,9 @@ if args.plot == 'latent_time':
 
 
 elif args.plot == 'velocity_graph':
-    scv.pl.velocity_graph(adata, color='type', threshold=.1, dpi=200, n_neighbors=5,
+    scv.pl.velocity_graph(adata, color='type', dpi=200, n_neighbors=5,
         save='{}_{}_type_tkey{}.png'.format(args.subset, args.plot, args.tkey))
-    scv.pl.velocity_graph(adata, color='day', threshold=.1, dpi=200, n_neighbors=5,
+    scv.pl.velocity_graph(adata, color='day', dpi=200, n_neighbors=5,
         save='{}_{}_day_tkey{}.png'.format(args.subset, args.plot, args.tkey))
 
 
