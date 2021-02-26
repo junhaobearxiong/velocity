@@ -1,6 +1,6 @@
 import loompy
 
-input_dirname = 'velocyto_output/'
+input_dirname = 'data/'
 output_path = 'data/full.loom'
 
 '''
