@@ -87,7 +87,7 @@ elif args.plot == 'top_genes':
 elif args.plot == 'speed_coherence':
     scv.tl.velocity_confidence(adata)
     keys = 'velocity_length', 'velocity_confidence'
-    scv.pl.scatter(adata, c=keys, cmap='coolwarm', perc=[5, 95], dpi=200,
+    scv.pl.scatter(adata, c=keys, cmap='coolwarm', perc=[5, 95], dpi=200, size=1,
         save='{}_{}.png'.format(args.subset, args.plot))
     df = adata.obs.groupby('type')[keys].mean().T
     df.style.background_gradient(cmap='coolwarm', axis=1)
