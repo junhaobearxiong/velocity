@@ -5,6 +5,9 @@ import numpy as np
 
 np.random.seed(1)
 
+scv.settings.verbosity = 3
+scv.settings.set_figure_params('scvelo')
+
 parser = argparse.ArgumentParser()
 parser.add_argument('subset', help='the subset of cells where we are performing the analysis, i.e. E1, E1col1, or full')
 parser.add_argument('plot', help='which type of plot to produce')
