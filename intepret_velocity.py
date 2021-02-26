@@ -11,8 +11,8 @@ scv.settings.set_figure_params('scvelo')
 parser = argparse.ArgumentParser()
 parser.add_argument('subset', help='the subset of cells where we are performing the analysis, i.e. E1, E1col1, or full')
 parser.add_argument('plot', help='which type of plot to produce')
-parser.add_argument('given_root', type=int, default=0, help='whether root cells are given (relevant for latent time or velocity graph')
-parser.add_argument('tkey', type=int, default=0, help='whether to use days as `tkey` when computing velocity graph')
+parser.add_argument('given_root', type=int, nargs='?', default=0, help='whether root cells are given (relevant for latent time or velocity graph')
+parser.add_argument('tkey', type=int, nargs='?', default=0, help='whether to use days as `tkey` when computing velocity graph')
 args = parser.parse_args()
 
 if not args.tkey:
