@@ -35,7 +35,7 @@ if args.plot == 'latent_time':
         scv.tl.latent_time(adata, root_key='is_day0')
 
     # plot embedding color by latent time
-    scv.pl.scatter(adata, color='latent_time', cmap='gnuplot', dpi=200,
+    scv.pl.scatter(adata, color='latent_time', cmap='gnuplot', dpi=200, size=1,
         save=latent_time_save_path)
     # plot top genes expression ordered by pseudotime
     scv.pl.heatmap(adata, var_names=top_genes, sortby='latent_time', col_color='type', n_convolve=100, 
@@ -60,7 +60,7 @@ elif args.plot == 'velocity_pseudotime':
         root_idx = np.random.choice(root_indices)
         scv.tl.velocity_pseudotime(adata, root_key=root_idx)
 
-    scv.pl.scatter(adata, color='velocity_pseudotime', color_map='gnuplot', dpi=200, 
+    scv.pl.scatter(adata, color='velocity_pseudotime', color_map='gnuplot', dpi=200, size=1,
         save=velocity_pseudotime_save_path)
 
     # this is needed due to a current bug - bugfix is coming soon.
@@ -80,7 +80,7 @@ elif args.plot == 'velocity_pseudotime':
 elif args.plot == 'top_genes':
     # plot top genes phase portrait
     top_genes = adata.var['fit_likelihood'].sort_values(ascending=False).index
-    scv.pl.scatter(adata, basis=top_genes[:15], ncols=5, frameon=False, dpi=150, color='type',
+    scv.pl.scatter(adata, basis=top_genes[:15], ncols=5, frameon=False, dpi=150, color='type', size=1,
         save='{}_top_genes_phase_portrait.png'.format(args.subset))
 
 
