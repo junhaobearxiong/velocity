@@ -78,10 +78,13 @@ elif args.plot == 'velocity_pseudotime':
 
 
 elif args.plot == 'top_genes':
-    # plot top genes phase portrait
-    top_genes = adata.var['fit_likelihood'].sort_values(ascending=False).index
-    scv.pl.scatter(adata, basis=top_genes[:15], ncols=5, frameon=False, dpi=150, color='type', size=1,
-        save='{}_top_genes_phase_portrait.png'.format(args.subset))
+    # plot top genes phase portrait by cell types
+    scv.tl.rank_dynamical_genes(adata, groupby='type')
+    df = scv.get_df(adata, 'rank_dynamical_genes/names')
+    df.head(5)
+    for cluster in df.columns:
+        scv.pl.scatter(adata, df[cluster][:20], ncols=4, frameon=False, color='type', size=1, dpi=200, alpha=0.5,
+            save='{}_{}_phase_portraits_{}.png'.format(args.subset, args.plot, cluster))
 
 
 elif args.plot == 'speed_coherence':
