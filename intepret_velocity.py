@@ -22,10 +22,8 @@ else:
 
 adata = sc.read(data_path)
 
-if args.plot == 'latent_time':
-    top_genes = adata.var['fit_likelihood'].sort_values(ascending=False).index[:300]
-    latent_time_save_path = '{}_latent_time_root{}_tkey{}.png'.format(args.subset, args.given_root, args.tkey)
-    top_genes_save_path = '{}_top_genes_by_latent_time_root{}_tkey{}.png'.format(args.subset, args.given_root, args.tkey)
+
+if 'latent_time' in args.plot:
     if not args.given_root:
         # estimate gene-shared latent time
         scv.tl.latent_time(adata)
@@ -34,12 +32,19 @@ if args.plot == 'latent_time':
         adata.obs['is_day0'] = (adata.obs['day'] == 0).astype(int)
         scv.tl.latent_time(adata, root_key='is_day0')
 
-    # plot embedding color by latent time
-    scv.pl.scatter(adata, color='latent_time', cmap='gnuplot', dpi=200, size=1,
-        save=latent_time_save_path)
-    # plot top genes expression ordered by pseudotime
-    scv.pl.heatmap(adata, var_names=top_genes, sortby='latent_time', col_color='type', n_convolve=100, 
-        save=top_genes_save_path)
+    if args.plot == 'latent_time_embedding':
+        # plot embedding color by latent time
+        scv.pl.scatter(adata, color='latent_time', cmap='gnuplot', dpi=200, size=1,
+            save='{}_latent_time_root{}_tkey{}.png'.format(args.subset, args.given_root, args.tkey))
+
+    elif args.plot == 'latent_time_top_genes':
+        top_genes = adata.var['fit_likelihood'].sort_values(ascending=False).index
+        # plot top genes expression heatmap ordered by latent time
+        scv.pl.heatmap(adata, var_names=top_genes[:300], sortby='latent_time', col_color='type', n_convolve=100, 
+            save='{}_top_genes_by_latent_time_root{}_tkey{}.png'.format(args.subset, args.given_root, args.tkey))
+        # plot spliced vs latent time for each top gene
+        scv.pl.scatter(adata, x='latent_time', y=top_genes[:19], ncols=5, color='type',
+            save='{}_top_genes_scatter_by_latent_time_root{}_tkey{}.png'.format(args.subset, args.given_root, args.tkey))
 
 
 elif args.plot == 'velocity_graph':
