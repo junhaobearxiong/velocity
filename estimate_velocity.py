@@ -25,11 +25,6 @@ scv.settings.set_figure_params('scvelo')
 adata = scv.read(input_path, cache=True)
 scv.utils.show_proportions(adata)
 
-scv.pp.filter_and_normalize(adata, min_shared_counts=20, n_top_genes=2000)
-sc.tl.pca(adata)
-sc.pp.neighbors(adata, n_pcs=30, n_neighbors=30)
-scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
-
 if args.mode == 'dynamical':
 	c = scachepy.Cache(cache_dir)
 	c.tl.recover_dynamics(adata, force=False, n_jobs=16)
@@ -38,7 +33,6 @@ else:
 	scv.tl.velocity(adata, mode=args.mode)
 
 scv.tl.velocity_graph(adata)
-sc.tl.umap(adata)
 
 adata.write(output_path)
 
