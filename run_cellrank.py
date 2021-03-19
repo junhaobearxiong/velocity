@@ -1,7 +1,7 @@
 import scanpy as sc
 import scvelo as scv
 import cellrank as cr
-import scachepy
+# import scachepy
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -14,18 +14,18 @@ if args.mode not in ['deterministic', 'stochastic', 'dynamical']:
 
 input_path = 'data/{}_{}_velocity.h5ad'.format(args.subset, args.mode)
 output_path = 'data/{}_{}_cellrank.h5ad'.format(args.subset, args.mode)
-cache_dir = 'cached_files/{}_{}'.format(args.subset, args.mode)
+# cache_dir = 'cached_files/{}_{}'.format(args.subset, args.mode)
 
 scv.settings.verbosity = 3
 scv.settings.set_figure_params('scvelo')
 cr.settings.verbosity = 2
 
-adata = scv.read(input_path, cache=True)
+adata = scv.read(input_path)
 scv.utils.show_proportions(adata)
 
 # plot terminal and initial states 
-cr.tl.terminal_states(adata, cluster_key='type', weight_connectivities=0.2)
-cr.tl.initial_states(adata, cluster_key='type')
+cr.tl.terminal_states(adata, cluster_key='type', weight_connectivities=0.2, n_jobs=-1)
+cr.tl.initial_states(adata, cluster_key='type', n_jobs=-1)
 cr.pl.terminal_states(adata, dpi=200, save='{}_{}_terminal_states.png'.format(args.subset, args.mode))
 cr.pl.initial_states(adata, dpi=200, save='{}_{}_initial_states.png'.format(args.subset, args.mode))
 
