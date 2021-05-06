@@ -1,4 +1,4 @@
-# A project to explore RNA velocity on (time-course) single-cell expression data
+# RNA velocity on (time-course) single-cell expression data
 
 ## Intro
 See the [slides](https://docs.google.com/presentation/d/1_Rd5fgE_AYLVqPdnvD-ux-t5Ey3bKZNE5_dChNtNkTk/edit?usp=sharing) here for the workflow and results of an example analysis.
